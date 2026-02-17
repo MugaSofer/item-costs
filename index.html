@@ -612,7 +612,7 @@
     </table>
 
     <h3>Total Bonus Damage vs DPR</h3>
-    <p>Total bonus damage (+0.032/avg) is the face-value average of all bonus damage dice. DPR (+0.033/round) adjusts for trigger frequency. Total bonus damage fits official rarities slightly better (R&sup2;=0.573 vs 0.562); DPR better reflects actual combat power. They mostly agree but diverge for items like Ring of the Ram (total 33, DPR 1.8).</p>
+    <p>Total bonus damage (+0.031/avg) is the face-value average of all bonus damage dice. DPR (+0.032/round) adjusts for trigger frequency. Total bonus damage fits official rarities slightly better (R&sup2;=0.577 vs 0.562); DPR better reflects actual combat power. They mostly agree but diverge for items like Ring of the Ram (total 33, DPR 1.8).</p>
 
     <h3>Estimating DPR</h3>
     <p>Assumes a typical martial character making 2 attacks/round with ~65% hit rate.</p>
@@ -634,25 +634,25 @@
     <h3>Formula Coefficients</h3>
     <table>
       <tr><th>Factor</th><th>Value</th></tr>
-      <tr><td>Base score</td><td>0.51</td></tr>
-      <tr><td>Spell level</td><td>+0.396/lvl &minus; 0.013/lvl&sup2;</td></tr>
-      <tr><td>No spell usage</td><td>+0.52</td></tr>
-      <tr><td>Charges/day</td><td>&minus;0.16 + 0.046/charge</td></tr>
-      <tr><td>Consumable charges</td><td>+0.011/charge</td></tr>
+      <tr><td>Base score</td><td>0.54</td></tr>
+      <tr><td>Spell level</td><td>+0.390/lvl &minus; 0.012/lvl&sup2;</td></tr>
+      <tr><td>No spell usage</td><td>+0.50</td></tr>
+      <tr><td>Charges/day</td><td>&minus;0.21 + 0.049/charge</td></tr>
+      <tr><td>Consumable</td><td>&minus;0.05 + 0.011/extra use</td></tr>
       <tr><td>+X bonus</td><td>+0.53/plus</td></tr>
-      <tr><td>Sets score</td><td>&minus;1.78 + 0.58/mod</td></tr>
-      <tr><td>+2 to score</td><td>+0.65</td></tr>
-      <tr><td>Secondary spell</td><td>+0.131/lvl</td></tr>
-      <tr><td>Total bonus damage</td><td>+0.032/avg dmg</td></tr>
-      <tr><td>DPR</td><td>+0.033/DPR</td></tr>
+      <tr><td>Sets score</td><td>&minus;1.79 + 0.58/mod</td></tr>
+      <tr><td>+2 to score</td><td>+0.62</td></tr>
+      <tr><td>Secondary spell</td><td>+0.128/lvl</td></tr>
+      <tr><td>Total bonus damage</td><td>+0.031/avg dmg</td></tr>
+      <tr><td>DPR</td><td>+0.032/DPR</td></tr>
       <tr><td>Extra features</td><td>+0.40</td></tr>
       <tr><td>Resistance</td><td>+0.37/type</td></tr>
       <tr><td>Immunity</td><td>+0.44/type</td></tr>
-      <tr><td>Save advantage</td><td>+0.29</td></tr>
-      <tr><td>HP preservation</td><td>+0.33</td></tr>
-      <tr><td>Extra equip slot</td><td>+1.19</td></tr>
-      <tr><td>Vision / light</td><td>+0.52</td></tr>
-      <tr><td>Utility presence</td><td>&minus;0.63</td></tr>
+      <tr><td>Save advantage</td><td>+0.24</td></tr>
+      <tr><td>HP preservation</td><td>+0.22</td></tr>
+      <tr><td>Extra equip slot</td><td>+1.15</td></tr>
+      <tr><td>Vision / light</td><td>+0.46</td></tr>
+      <tr><td>Utility presence</td><td>&minus;0.47</td></tr>
     </table>
   </div>
 </div>
@@ -670,28 +670,29 @@
 // Formula
 // ============================================================
 const COEF = {
-  base: 0.51,
-  spellLevel: 0.3949,
-  spellLevelSq: -0.0133,
-  noSpellUsage: 0.52,
-  chargesDay: -0.16,
-  perChargeDay: 0.046,
+  base: 0.54,
+  spellLevel: 0.390,
+  spellLevelSq: -0.012,
+  noSpellUsage: 0.50,
+  chargesDay: -0.21,
+  consumable: -0.05,
+  perChargeDay: 0.049,
   perChargeItem: 0.011,
-  plusBonus: 0.525,
-  setsScoreBase: -1.78,
+  plusBonus: 0.526,
+  setsScoreBase: -1.79,
   setsScorePer: 0.584,
-  bonusScore: 0.65,
-  secondarySpell: 0.131,
-  headlineDmg: 0.032,
-  dprDmg: 0.033,
+  bonusScore: 0.62,
+  secondarySpell: 0.128,
+  headlineDmg: 0.031,
+  dprDmg: 0.032,
   extras: 0.40,
   resistance: 0.37,
   immunity: 0.44,
-  saveAdv: 0.29,
-  hpPres: 0.33,
-  extraSlot: 1.19,
-  vision: 0.52,
-  utility: -0.63,
+  saveAdv: 0.24,
+  hpPres: 0.22,
+  extraSlot: 1.15,
+  vision: 0.46,
+  utility: -0.47,
 };
 
 // Piecewise log-linear price interpolation
@@ -809,6 +810,8 @@ function calculate() {
       breakdown.push({ label: `${nCharges} charges \u00D7 ${COEF.perChargeDay}`, value: c });
     }
   } else if (isConsumable) {
+    score += COEF.consumable;
+    breakdown.push({ label: 'Consumable', value: COEF.consumable });
     const totalUses = Math.max(1, getVal('total-uses'));
     const extraCharges = totalUses - 1;
     if (extraCharges > 0) {
