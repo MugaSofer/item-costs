@@ -10,7 +10,7 @@ Start with a **base score of 0.54**, then add or subtract the following.
 
 ### Spell Level (the biggest factor)
 
-If the item replicates or is based on a spell effect, add **0.390 per spell level**, minus **0.012 per spell level squared**.
+If the item replicates or is based on a spell effect, add **0.392 per spell level**, minus **0.012 per spell level squared**.
 
 In practice:
 
@@ -18,14 +18,14 @@ In practice:
 |---|---|
 | Cantrip (0) | +0.00 |
 | 1st | +0.38 |
-| 2nd | +0.73 |
-| 3rd | +1.06 |
-| 4th | +1.37 |
-| 5th | +1.65 |
-| 6th | +1.91 |
-| 7th | +2.15 |
-| 8th | +2.36 |
-| 9th | +2.55 |
+| 2nd | +0.74 |
+| 3rd | +1.07 |
+| 4th | +1.38 |
+| 5th | +1.67 |
+| 6th | +1.93 |
+| 7th | +2.17 |
+| 8th | +2.39 |
+| 9th | +2.59 |
 
 The curve flattens at higher levels -- the jump from 1st to 2nd matters more than 8th to 9th.
 
@@ -62,14 +62,14 @@ The base score assumes the item replicates a spell via unlimited, at-will usage.
 
 | Usage Type | Modifier | Examples |
 |---|---|---|
-| No spell-like usage | +0.50 | Plain +X weapons, ability score items, damage-only weapons |
+| No spell-like usage | +0.51 | Plain +X weapons, ability score items, damage-only weapons |
 | Unlimited / at-will / permanent spell | — | Cloak of Elvenkind, Broom of Flying |
-| Consumable (destroyed after use) | -0.05 | Potions, scrolls, beads |
-| Charges per day (recharges daily) | -0.21 | Wands, staves, most charge-based items |
+| Consumable (destroyed after use) | -0.06 | Potions, scrolls, beads |
+| Charges per day (recharges daily) | -0.22 | Wands, staves, most charge-based items |
 
-For items with daily charges, add **+0.049 per charge per day**. For consumable items with multiple charges before breaking, add **+0.011 per extra charge** (beyond the first).
+For items with daily charges, add **+0.050 per charge per day**. For consumable items with multiple charges before breaking, add **+0.012 per extra charge** (beyond the first).
 
-An item with 7 charges/day: -0.21 + 7 x 0.049 = +0.13 total (nearly cancelling out — 7/day is practically at-will for most adventuring days).
+An item with 7 charges/day: -0.22 + 7 x 0.050 = +0.13 total (nearly cancelling out — 7/day is practically at-will for most adventuring days).
 
 ### Passive Features
 
@@ -82,59 +82,59 @@ Add modifiers for always-on features the item grants while worn or carried. "Pas
 *Resistance examples: Armor of Resistance, Ring of Resistance, Dragon Scale Mail, Frost Brand, Staff of Fire.*
 *Immunity examples: Efreeti Chain (fire), Periapt of Proof against Poison, Ring of Fire Elemental Command.*
 
-**Saving throw advantage or bonus: +0.24.** The item grants advantage on certain saving throws, or a passive bonus to saves beyond what's captured by the +X bonus field.
+**Saving throw advantage or bonus: +0.23.** The item grants advantage on certain saving throws, or a passive bonus to saves beyond what's captured by the +X bonus field.
 
 *Examples: Mantle of Spell Resistance, Ring of Spell Turning, Robe of the Archmagi, Scarab of Protection, Spellguard Shield, Stone of Good Luck.*
 
-**HP preservation: +0.22.** The item passively reduces incoming damage, regenerates hit points, or otherwise preserves HP without requiring charges or activation.
+**HP preservation: +0.21.** The item passively reduces incoming damage, regenerates hit points, or otherwise preserves HP without requiring charges or activation.
 
 *Examples: Cloak of Displacement, Ring of Regeneration, Periapt of Wound Closure, Arrow-Catching Shield, Gloves of Missile Snaring.*
 
-The defensive categories contribute in the +0.22–0.37 range per instance. With only 7–27 items each, the individual estimates are noisy; if you want a single number for "has any defensive passive", +0.29 is a safe approximation.
+The defensive categories contribute in the +0.21–0.37 range per instance. With only 7–27 items each, the individual estimates are noisy; if you want a single number for "has any defensive passive", +0.27 is a safe approximation.
 
-**Extra equipment slot: +1.15.** The item effectively gives you an extra equipment slot — it fights on its own, orbits your head, or otherwise acts independently without occupying your hands or an action. This is the single largest modifier in the formula.
+**Extra equipment slot: +1.13.** The item effectively gives you an extra equipment slot — it fights on its own, orbits your head, or otherwise acts independently without occupying your hands or an action. This is the single largest modifier in the formula.
 
 *Examples: All Ioun Stones, Dancing Sword, Animated Shield, Scimitar of Speed, Tentacle Rod.*
 
-**Special vision or light: +0.46.** The item grants enhanced vision (darkvision, truesight, see invisible) or sheds magical light as a passive property.
+**Special vision or light: +0.45.** The item grants enhanced vision (darkvision, truesight, see invisible) or sheds magical light as a passive property.
 
 *Examples: Robe of Eyes, Goggles of Night, Crystal Ball, Eyes of the Eagle, Flame Tongue, Sun Blade, Sentinel Shield.*
 
-**Utility presence: -0.47.** The item provides a passive convenience or utility effect — things like environmental immunity, stealth enhancement, or niche protections that are useful but not combat-defining. The *negative* coefficient means these items tend to be priced *lower* than you'd expect from their spell equivalents; designers seem to consider passive utility less impressive than active power.
+**Utility presence: -0.40.** The item provides a passive convenience or utility effect — things like environmental immunity, stealth enhancement, or niche protections that are useful but not combat-defining. The *negative* coefficient means these items tend to be priced *lower* than you'd expect from their spell equivalents; designers seem to consider passive utility less impressive than active power.
 
 *Examples: Weapon of Warning, Cloak of Elvenkind, Boots of the Winterlands, Periapt of Health, Ring of Mind Shielding, Necklace of Adaption.*
 
-These categories can overlap with each other and with other modifiers. For example, Cloak of Displacement has both "HP preservation" (+0.22) and would score its main effect through spell level as normal.
+These categories can overlap with each other and with other modifiers. For example, Cloak of Displacement has both "HP preservation" (+0.21) and would score its main effect through spell level as normal.
 
 **Note on attunement:** You can ignore whether an item requires attunement. Attunement is a consequence of what an item does, not an independent driver of rarity — when the formula's variables are present, attunement's coefficient drops to zero. (The passive features above, combined with spell level, charges, +X bonuses, and ability score effects, collectively account for the same item features that [trigger attunement](https://www.enworld.org/threads/reverse-engineering-the-real-rules-of-attunement.682660/).)
 
 ### +X Bonus (AC, Save DC, Spell Attack, or Weapon)
 
-Add **+0.53 per plus**. If the item has several bonus types (e.g. a Rod of the Pact Keeper grants both spell save DC and spell attack), use whichever is highest -- they tend to come in matched sets.
+Add **+0.53 per plus**. If the item has several bonus types (e.g. a Rod of the Pact Keeper grants both spell save DC and spell attack), use whichever is highest — they tend to come in matched sets.
 
 | Bonus | Contribution |
 |---|---|
 | +1 | +0.53 |
-| +2 | +1.05 |
-| +3 | +1.58 |
+| +2 | +1.06 |
+| +3 | +1.59 |
 
 ### Ability Score Effects
 
-- **Sets an ability score**: subtract 1.79, then add **+0.58 per point of modifier** the score grants.
-- **Grants +2 to an ability score** (tomes/manuals): add **+0.62**.
+- **Sets an ability score**: subtract 1.80, then add **+0.58 per point of modifier** the score grants.
+- **Grants +2 to an ability score** (tomes/manuals): add **+0.63**.
 
 | Set Score | Modifier | Net Contribution |
 |---|---|---|
-| 19 | +4 | +0.55 |
-| 21 | +5 | +1.13 |
-| 23 | +6 | +1.71 |
-| 25 | +7 | +2.30 |
-| 27 | +8 | +2.88 |
-| 29 | +9 | +3.47 |
+| 19 | +4 | +0.53 |
+| 21 | +5 | +1.12 |
+| 23 | +6 | +1.70 |
+| 25 | +7 | +2.29 |
+| 27 | +8 | +2.87 |
+| 29 | +9 | +3.45 |
 
 ### Multiple Spell Effects
 
-If the item has additional spell effects beyond the primary one, add **+0.128 per spell level of the highest secondary effect**. If there's both a second and third spell effect, use whichever has the higher spell level.
+If the item has additional spell effects beyond the primary one, add **+0.127 per spell level of the highest secondary effect**. If there's both a second and third spell effect, use whichever has the higher spell level.
 
 ### Bonus Damage
 
@@ -142,7 +142,7 @@ If the item deals extra damage beyond what's captured by its spell level (bonus 
 
 #### Option A: Headline Damage (better fit to official rarities)
 
-Add **+0.031 per point of average headline damage**. This is the straightforward face-value average of the damage dice, summed across all of the item's damage effects, regardless of how often they trigger. This approach better predicts what WotC actually assigned (R² = 0.577), suggesting the designers priced items based on how impressive the damage *looks* rather than how it plays out in practice.
+Add **+0.031 per point of average headline damage**. This is the straightforward face-value average of the damage dice, summed across all of the item's damage effects, regardless of how often they trigger. This approach better predicts what WotC actually assigned (R² = 0.579), suggesting the designers priced items based on how impressive the damage *looks* rather than how it plays out in practice.
 
 To calculate, add up the average damage from all the item's bonus damage sources:
 
@@ -216,12 +216,16 @@ Round the score to the nearest integer:
 | 2 | Rare |
 | 3 | Very Rare |
 | 4 | Legendary |
+| 5+ | Artifact |
+
+Scores above 5 indicate artifact-level power. The formula can identify many artifacts (Wand of Orcus scores 6.1, Sword of Kas 5.8) but undervalues those with unique effects that don't map to spells or damage — soul consumption, dragon calling, plot-level abilities.
 
 ### Model Accuracy
 
 - **50% exact match** to official rarity
 - **95% within one tier**
 - R-squared = 0.58 (the formula explains over half the variance; the rest is designer judgement, flavour, and "vibes")
+- AIC = 1124.6
 
 ### Known Weaknesses
 
@@ -274,61 +278,61 @@ Spell scroll prices follow their own progression (Xanathar's p133) that doesn't 
 
 **Wand of Fireballs** (3rd-level spell, 7 charges/day):
 - Base: 0.54
-- Spell level 3: +1.06
-- Charges/day: -0.21
-- 7 charges: +0.34
-- **Total: 1.73 (Rare)** -- matches official rarity
-- Price: ~2,100 gp (between Uncommon 400 and Rare 4,000)
+- Spell level 3: +1.07
+- Charges/day: -0.22
+- 7 charges: +0.35
+- **Total: 1.74 (Rare)** -- matches official rarity
+- Price: ~2,200 gp (between Uncommon 400 and Rare 4,000)
 
 **+2 Shield** (no spell, +2 AC):
 - Base: 0.54
-- No spell usage: +0.50
-- +2 bonus: +1.05
-- **Total: 2.09 (Rare)** -- matches official rarity
-- Price: ~4,900 gp
+- No spell usage: +0.51
+- +2 bonus: +1.06
+- **Total: 2.11 (Rare)** -- matches official rarity
+- Price: ~5,100 gp
 
 **Flame Tongue** (cantrip-level spell for light, unlimited, 7 avg permanent bonus damage, special vision/light):
 - Base: 0.54
 - Spell level 0: +0.00
 - Bonus damage (7): +0.22
-- Special vision/light: +0.46
-- **Total: 1.22 (Uncommon)** -- officially Rare (model slightly underpredicts)
-- Price: ~640 gp
+- Special vision/light: +0.45
+- **Total: 1.21 (Uncommon)** -- officially Rare (model slightly underpredicts)
+- Price: ~620 gp
 
 **Belt of Fire Giant Strength** (sets STR to 25):
 - Base: 0.54
-- No spell usage: +0.50
-- Sets score (mod +7): -1.79 + 7 x 0.58 = +2.30
+- No spell usage: +0.51
+- Sets score (mod +7): -1.80 + 7 x 0.58 = +2.29
 - **Total: 3.34 (Very Rare)** -- matches official rarity
 - Price: ~70,000 gp
 
 **Potion of Greater Healing** (2nd-level Cure Wounds equivalent, consumable):
 - Base: 0.54
-- Spell level 2: +0.73
-- Consumable: -0.05
+- Spell level 2: +0.74
+- Consumable: -0.06
 - **Total: 1.22 (Uncommon)** -- matches official rarity
 - Price: ~110 gp (consumable: 640 × 1/6; Xanathar's crafting cost: 100 gp)
 
 **Holy Avenger** (+3 weapon, 4th-level spell, unlimited, 11 avg permanent bonus damage, misc extra features, saving throw aura):
 - Base: 0.54
-- Spell level 4: +1.37
-- +3 bonus: +1.58
+- Spell level 4: +1.38
+- +3 bonus: +1.59
 - Bonus damage (11): +0.34
 - Misc features: +0.40
-- Save advantage: +0.24
-- **Total: 4.47 (Legendary)** -- matches official rarity
+- Save advantage: +0.23
+- **Total: 4.48 (Legendary)** -- matches official rarity
 - Price: ~200,000+ gp (capped at Legendary)
 
 **Ring of Invisibility** (3rd-level spell, unlimited):
 - Base: 0.54
-- Spell level 3: +1.06
-- **Total: 1.60 (Rare)** -- officially Legendary (iconic prestige bump)
+- Spell level 3: +1.07
+- **Total: 1.61 (Rare)** -- officially Legendary (iconic prestige bump)
 - Price: ~1,600 gp by formula; actual value much higher given Legendary status
 
 **Mantle of Spell Resistance** (save advantage, no spell effect):
 - Base: 0.54
-- No spell usage: +0.50
-- Save advantage: +0.24
+- No spell usage: +0.51
+- Save advantage: +0.23
 - **Total: 1.28 (Uncommon)** -- officially Rare (the "advantage on saves vs spells" is hard to capture as a spell level)
 - Price: ~770 gp
 

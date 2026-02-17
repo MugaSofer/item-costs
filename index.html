@@ -578,7 +578,7 @@
     <h3>Spell Level Contribution</h3>
     <table>
       <tr><th>Level</th><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td></tr>
-      <tr><th>Contrib</th><td>+0.00</td><td>+0.38</td><td>+0.74</td><td>+1.07</td><td>+1.37</td><td>+1.65</td><td>+1.89</td><td>+2.11</td><td>+2.30</td><td>+2.46</td></tr>
+      <tr><th>Contrib</th><td>+0.00</td><td>+0.38</td><td>+0.74</td><td>+1.07</td><td>+1.38</td><td>+1.67</td><td>+1.93</td><td>+2.17</td><td>+2.39</td><td>+2.59</td></tr>
     </table>
 
     <h3>Price by Rarity Score</h3>
@@ -599,7 +599,7 @@
     <table>
       <tr><th>Score</th><td>19</td><td>21</td><td>23</td><td>25</td><td>27</td><td>29</td></tr>
       <tr><th>Mod</th><td>+4</td><td>+5</td><td>+6</td><td>+7</td><td>+8</td><td>+9</td></tr>
-      <tr><th>Net</th><td>+0.54</td><td>+1.12</td><td>+1.70</td><td>+2.28</td><td>+2.86</td><td>+3.44</td></tr>
+      <tr><th>Net</th><td>+0.53</td><td>+1.12</td><td>+1.70</td><td>+2.29</td><td>+2.87</td><td>+3.45</td></tr>
     </table>
 
     <h3>Spell Level Adjustments</h3>
@@ -612,7 +612,7 @@
     </table>
 
     <h3>Total Bonus Damage vs DPR</h3>
-    <p>Total bonus damage (+0.031/avg) is the face-value average of all bonus damage dice. DPR (+0.032/round) adjusts for trigger frequency. Total bonus damage fits official rarities slightly better (R&sup2;=0.577 vs 0.562); DPR better reflects actual combat power. They mostly agree but diverge for items like Ring of the Ram (total 33, DPR 1.8).</p>
+    <p>Total bonus damage (+0.031/avg) is the face-value average of all bonus damage dice. DPR (+0.032/round) adjusts for trigger frequency. Total bonus damage fits official rarities slightly better (R&sup2;=0.579 vs 0.562); DPR better reflects actual combat power. They mostly agree but diverge for items like Ring of the Ram (total 33, DPR 1.8).</p>
 
     <h3>Estimating DPR</h3>
     <p>Assumes a typical martial character making 2 attacks/round with ~65% hit rate.</p>
@@ -635,24 +635,24 @@
     <table>
       <tr><th>Factor</th><th>Value</th></tr>
       <tr><td>Base score</td><td>0.54</td></tr>
-      <tr><td>Spell level</td><td>+0.390/lvl &minus; 0.012/lvl&sup2;</td></tr>
-      <tr><td>No spell usage</td><td>+0.50</td></tr>
-      <tr><td>Charges/day</td><td>&minus;0.21 + 0.049/charge</td></tr>
-      <tr><td>Consumable</td><td>&minus;0.05 + 0.011/extra use</td></tr>
+      <tr><td>Spell level</td><td>+0.392/lvl &minus; 0.012/lvl&sup2;</td></tr>
+      <tr><td>No spell usage</td><td>+0.51</td></tr>
+      <tr><td>Charges/day</td><td>&minus;0.22 + 0.050/charge</td></tr>
+      <tr><td>Consumable</td><td>&minus;0.06 + 0.012/extra use</td></tr>
       <tr><td>+X bonus</td><td>+0.53/plus</td></tr>
-      <tr><td>Sets score</td><td>&minus;1.79 + 0.58/mod</td></tr>
-      <tr><td>+2 to score</td><td>+0.62</td></tr>
-      <tr><td>Secondary spell</td><td>+0.128/lvl</td></tr>
+      <tr><td>Sets score</td><td>&minus;1.80 + 0.58/mod</td></tr>
+      <tr><td>+2 to score</td><td>+0.63</td></tr>
+      <tr><td>Secondary spell</td><td>+0.127/lvl</td></tr>
       <tr><td>Total bonus damage</td><td>+0.031/avg dmg</td></tr>
       <tr><td>DPR</td><td>+0.032/DPR</td></tr>
       <tr><td>Extra features</td><td>+0.40</td></tr>
       <tr><td>Resistance</td><td>+0.37/type</td></tr>
       <tr><td>Immunity</td><td>+0.44/type</td></tr>
-      <tr><td>Save advantage</td><td>+0.24</td></tr>
-      <tr><td>HP preservation</td><td>+0.22</td></tr>
-      <tr><td>Extra equip slot</td><td>+1.15</td></tr>
-      <tr><td>Vision / light</td><td>+0.46</td></tr>
-      <tr><td>Utility presence</td><td>&minus;0.47</td></tr>
+      <tr><td>Save advantage</td><td>+0.23</td></tr>
+      <tr><td>HP preservation</td><td>+0.21</td></tr>
+      <tr><td>Extra equip slot</td><td>+1.13</td></tr>
+      <tr><td>Vision / light</td><td>+0.45</td></tr>
+      <tr><td>Utility presence</td><td>&minus;0.40</td></tr>
     </table>
   </div>
 </div>
@@ -671,28 +671,28 @@
 // ============================================================
 const COEF = {
   base: 0.54,
-  spellLevel: 0.390,
+  spellLevel: 0.392,
   spellLevelSq: -0.012,
-  noSpellUsage: 0.50,
-  chargesDay: -0.21,
-  consumable: -0.05,
-  perChargeDay: 0.049,
-  perChargeItem: 0.011,
-  plusBonus: 0.526,
-  setsScoreBase: -1.79,
+  noSpellUsage: 0.51,
+  chargesDay: -0.22,
+  consumable: -0.06,
+  perChargeDay: 0.050,
+  perChargeItem: 0.012,
+  plusBonus: 0.530,
+  setsScoreBase: -1.80,
   setsScorePer: 0.584,
-  bonusScore: 0.62,
-  secondarySpell: 0.128,
+  bonusScore: 0.63,
+  secondarySpell: 0.127,
   headlineDmg: 0.031,
   dprDmg: 0.032,
   extras: 0.40,
   resistance: 0.37,
   immunity: 0.44,
-  saveAdv: 0.24,
-  hpPres: 0.22,
-  extraSlot: 1.15,
-  vision: 0.46,
-  utility: -0.47,
+  saveAdv: 0.23,
+  hpPres: 0.21,
+  extraSlot: 1.13,
+  vision: 0.45,
+  utility: -0.40,
 };
 
 // Piecewise log-linear price interpolation
@@ -716,10 +716,10 @@ function formatGold(gp, prefix) {
   return prefix + Math.round(gp) + ' gp';
 }
 
-const RARITY_NAMES = ['Common', 'Uncommon', 'Rare', 'Very Rare', 'Legendary'];
+const RARITY_NAMES = ['Common', 'Uncommon', 'Rare', 'Very Rare', 'Legendary', 'Artifact'];
 
 function rarityFromScore(score) {
-  const idx = Math.min(4, Math.max(0, Math.round(score)));
+  const idx = Math.min(5, Math.max(0, Math.round(score)));
   return RARITY_NAMES[idx];
 }
 
