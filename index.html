@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>5e Magic Item Rarity &amp; Price Calculator</title>
+<style>
+  /* Parchment / old tome (default) */
+  :root {
+    --bg: #f9f1e1;
+    --surface: #f2e9d5;
+    --surface2: #ece1c8;
+    --accent: #8b1a1a;
+    --gold: #8b1a1a;
+    --gold-dim: #58180d;
+    --text: #222;
+    --text-dim: #444;
+    --border: #c9b98a;
+    --bg-grad1: rgba(200,180,140,0.2);
+    --bg-grad2: rgba(180,160,120,0.15);
+    --input-bg: #fff8ec;
+    --positive: #1a6b1a;
+    --negative: #8b1a1a;
+    --shadow: rgba(80,60,30,0.12);
+  }
+  /* Navy / gold (dark mode) */
+  [data-theme="dark"] {
+    --bg: #1a1a2e;
+    --surface: #16213e;
+    --surface2: #0f3460;
+    --accent: #e94560;
+    --gold: #d4a843;
+    --gold-dim: #a07830;
+    --text: #e0e0e0;
+    --text-dim: #999;
+    --border: #2a3a5e;
+    --bg-grad1: rgba(15,52,96,0.3);
+    --bg-grad2: rgba(15,30,60,0.3);
+    --input-bg: #1a1a2e;
+    --positive: #7fba6a;
+    --negative: #e07070;
+    --shadow: rgba(0,0,0,0.3);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse at 20% 0%, var(--bg-grad1) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 100%, var(--bg-grad2) 0%, transparent 60%);
+    color: var(--text);
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 1.5rem 1rem;
+  }
+  header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--gold-dim);
+  }
+  h1 {
+    font-family: Georgia, 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+    font-size: 1.7rem;
+    color: var(--gold);
+    margin-bottom: 0.25rem;
+    letter-spacing: 0.02em;
+    text-shadow: 0 1px 2px var(--shadow);
+  }
+  header p {
+    color: var(--text-dim);
+    font-size: 0.85rem;
+  }
+  header a { color: var(--gold-dim); }
+
+  /* Results panel */
+  #results {
+    background: var(--surface2);
+    border: 2px solid var(--gold-dim);
+    border-radius: 4px;
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 12px var(--shadow), inset 0 1px 0 rgba(201,168,76,0.1);
+  }
+  .results-main {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.5rem;
+    align-items: baseline;
+  }
+  .result-item {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+  }
+  .result-label { color: var(--text-dim); font-size: 0.8rem; }
+  .result-value { font-weight: 600; }
+  .result-value.score { color: var(--gold); font-size: 1.3rem; }
+  .result-value.rarity { color: var(--accent); font-size: 1rem; }
+  .result-value.price { color: var(--gold); font-size: 1rem; }
+  .result-value.attune { font-size: 0.85rem; }
+  .result-value.attune.yes { color: var(--accent); }
+  .result-value.attune.no { color: var(--text-dim); }
+
+  #breakdown {
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+  #breakdown.open { max-height: 600px; }
+  .breakdown-toggle {
+    background: none;
+    border: none;
+    color: var(--gold-dim);
+    cursor: pointer;
+    font-size: 0.8rem;
+    padding: 0.25rem 0;
+    text-align: left;
+  }
+  .breakdown-toggle:hover { color: var(--gold); }
+  .bd-line {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.1rem 0;
+  }
+  .bd-line.positive .bd-val { color: var(--positive); }
+  .bd-line.negative .bd-val { color: var(--negative); }
+  .bd-line.zero { opacity: 0.4; }
+
+  /* Form sections */
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.75rem;
+    box-shadow: 0 1px 4px var(--shadow);
+  }
+  .section-title {
+    font-family: Georgia, 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--gold);
+    margin-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.4rem;
+  }
+
+  label {
+    display: block;
+    font-size: 0.85rem;
+    margin-bottom: 0.2rem;
+    color: var(--text-dim);
+  }
+  select, input[type="number"] {
+    background: var(--input-bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.4rem 0.5rem;
+    font-size: 0.9rem;
+    width: 100%;
+    max-width: 200px;
+  }
+  select:focus, input:focus {
+    outline: none;
+    border-color: var(--gold-dim);
+  }
+  input[type="number"] { max-width: 100px; }
+
+  .field-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .field-group { flex-shrink: 0; }
+
+  /* Radio groups */
+  .radio-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .radio-group label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    cursor: pointer;
+    color: var(--text);
+    margin-bottom: 0;
+  }
+  input[type="radio"] { accent-color: var(--gold-dim); }
+
+  /* Checkbox rows */
+  .check-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.4rem;
+  }
+  .check-row label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    cursor: pointer;
+    color: var(--text);
+    margin-bottom: 0;
+    white-space: nowrap;
+  }
+  input[type="checkbox"] { accent-color: var(--gold-dim); }
+  .check-row input[type="number"] {
+    max-width: 60px;
+    padding: 0.2rem 0.4rem;
+    font-size: 0.85rem;
+  }
+  .check-row .type-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-left: 0.25rem;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+  }
+
+  /* Spell adjustment checkboxes */
+  .adjust-checks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+    margin-bottom: 0.4rem;
+  }
+  .adjust-checks label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    cursor: pointer;
+    color: var(--text);
+    font-size: 0.85rem;
+    margin-bottom: 0;
+  }
+
+  /* DPR source rows */
+  .dpr-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.4rem;
+    flex-wrap: wrap;
+  }
+  .dpr-row input[type="number"] {
+    max-width: 70px;
+    padding: 0.3rem 0.4rem;
+    font-size: 0.85rem;
+  }
+  .dpr-row select {
+    max-width: 190px;
+    padding: 0.3rem 0.4rem;
+    font-size: 0.85rem;
+  }
+  .dpr-row .dpr-result {
+    font-size: 0.85rem;
+    color: var(--gold-dim);
+    min-width: 60px;
+  }
+  .dpr-row .dpr-uses {
+    display: none;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+  }
+  .dpr-row .dpr-uses input {
+    max-width: 50px;
+  }
+  .dpr-row .dpr-remove {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0 0.25rem;
+    line-height: 1;
+  }
+  .dpr-row .dpr-remove:hover { color: var(--accent); }
+
+  .sub-field {
+    margin-left: 1.5rem;
+    margin-top: 0.25rem;
+    margin-bottom: 0.5rem;
+    padding-left: 0.75rem;
+    border-left: 2px solid var(--border);
+  }
+
+  .hint {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    margin-top: 0.2rem;
+  }
+
+  /* Reference section */
+  .ref-section {
+    margin-top: 1.5rem;
+    border-top: 2px solid var(--gold-dim);
+    padding-top: 1rem;
+  }
+  .ref-toggle {
+    background: none;
+    border: none;
+    color: var(--gold);
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 0.5rem 0;
+    width: 100%;
+    text-align: left;
+  }
+  .ref-toggle:hover { color: var(--accent); }
+  .ref-toggle::before { content: '\25B8 '; }
+  .ref-toggle.open::before { content: '\25BE '; }
+  .ref-content {
+    display: none;
+    padding: 0.75rem 0;
+  }
+  .ref-content.open { display: block; }
+  .ref-content h3 {
+    font-family: Georgia, 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+    font-size: 0.95rem;
+    color: var(--gold-dim);
+    margin: 1rem 0 0.5rem;
+  }
+  .ref-content h3:first-child { margin-top: 0; }
+  .ref-content p {
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+  }
+  table {
+    border-collapse: collapse;
+    font-size: 0.8rem;
+    margin-bottom: 0.75rem;
+  }
+  th, td {
+    padding: 0.25rem 0.75rem;
+    border: 1px solid var(--border);
+    text-align: right;
+  }
+  th {
+    background: var(--surface);
+    color: var(--gold);
+    font-weight: 600;
+    text-align: left;
+  }
+
+  footer {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    text-align: center;
+  }
+  footer a { color: var(--gold-dim); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>5e Magic Item Rarity &amp; Price Calculator</h1>
+  <p>Based on a formula reverse-engineered from ~480 official items via regression.
+    <a href="https://github.com/MugaSofer/item-costs">About</a>
+    &middot; <button id="theme-toggle" style="background:none;border:none;color:var(--gold-dim);cursor:pointer;font-size:0.85rem;text-decoration:underline">Dark mode</button></p>
+</header>
+
+<div id="results">
+  <div class="results-main">
+    <div class="result-item">
+      <span class="result-label">Score</span>
+      <span class="result-value score" id="r-score">0.51</span>
+    </div>
+    <div class="result-item">
+      <span class="result-label">Rarity</span>
+      <span class="result-value rarity" id="r-rarity">Uncommon</span>
+    </div>
+    <div class="result-item">
+      <span class="result-label">Price</span>
+      <span class="result-value price" id="r-price">~200 gp</span>
+    </div>
+    <div class="result-item" id="r-attune-row">
+      <span class="result-value attune" id="r-attune"></span>
+    </div>
+  </div>
+  <div id="r-range" style="font-size:0.8rem;color:var(--text-dim);margin-top:0.3rem"></div>
+  <button class="breakdown-toggle" id="bd-toggle">Show breakdown &#x25BE;</button>
+  <div id="breakdown"></div>
+</div>
+
+<!-- Spell Level -->
+<div class="section">
+  <div class="section-title">Spell Level</div>
+  <div class="field-row">
+    <div class="field-group">
+      <label for="spell-level">Primary spell effect</label>
+      <select id="spell-level">
+        <option value="-1">None</option>
+        <option value="0">Cantrip (0)</option>
+        <option value="1">1st</option>
+        <option value="2">2nd</option>
+        <option value="3">3rd</option>
+        <option value="4">4th</option>
+        <option value="5">5th</option>
+        <option value="6">6th</option>
+        <option value="7">7th</option>
+        <option value="8">8th</option>
+        <option value="9">9th</option>
+      </select>
+    </div>
+  </div>
+  <div id="spell-adjust-section" style="display:none">
+    <label style="margin-bottom:0.4rem">Adjustments to spell level</label>
+    <div class="adjust-checks">
+      <label title="The base spell normally requires concentration, but this item removes that requirement."><input type="checkbox" id="adj-no-conc" value="0.5"> No concentration (+0.5)</label>
+      <label title="The item only grants part of the spell's effect, or a weaker version (e.g. self-only when the spell targets others). For multiple limitations, use the manual adjustment field below."><input type="checkbox" id="adj-weaker" value="-0.5"> Weaker / partial (-0.5)</label>
+      <label title="The effect is stronger than the base spell: more targets, longer duration, wider area, ignores resistance, etc. For multiple upgrades, use the manual adjustment field below."><input type="checkbox" id="adj-stronger" value="1"> Stronger effect (+1)</label>
+      <label title="The item lets you cast the spell as a bonus action instead of a full action."><input type="checkbox" id="adj-bonus-action" value="1"> Bonus action (+1)</label>
+    </div>
+    <div class="field-row" style="margin-top:0.25rem">
+      <div class="field-group">
+        <label for="spell-adjust-manual">Additional manual adjustment</label>
+        <input type="number" id="spell-adjust-manual" value="0" step="0.5" min="-5" max="5" style="max-width:80px">
+      </div>
+    </div>
+  </div>
+  <div class="field-row" style="margin-top:0.5rem">
+    <div class="field-group">
+      <label for="secondary-spell" title="If the item has additional spell effects beyond the primary one, enter the highest spell level among them.">Highest secondary spell level</label>
+      <input type="number" id="secondary-spell" value="0" min="0" max="9" step="1">
+    </div>
+  </div>
+</div>
+
+<!-- Usage Type -->
+<div class="section">
+  <div class="section-title">How the Item Is Used</div>
+  <div class="radio-group">
+    <label title="The item has no spell-like effect; its power comes from bonuses, damage, passives, etc. E.g. +X weapons, ability score belts."><input type="radio" name="usage" value="none" checked> No spell usage</label>
+    <label title="The spell effect can be used at will or is always active. E.g. Broom of Flying, Cloak of Elvenkind."><input type="radio" name="usage" value="unlimited"> Unlimited / at-will</label>
+    <label title="The item is destroyed after use. E.g. potions, scrolls, beads."><input type="radio" name="usage" value="consumable"> Consumable</label>
+    <label title="The item has charges that recharge daily. E.g. wands, staves."><input type="radio" name="usage" value="charges"> Charges/day</label>
+  </div>
+  <div id="charges-fields" class="sub-field" style="display:none">
+    <label for="charges-day">Charges per day</label>
+    <input type="number" id="charges-day" value="7" min="1" max="50">
+  </div>
+  <div id="consumable-fields" class="sub-field" style="display:none">
+    <label for="total-uses">Total uses before destroyed</label>
+    <input type="number" id="total-uses" value="1" min="1" max="50">
+    <div class="hint">1 = single-use (potion, scroll). Higher for multi-use items (e.g. Necklace of Fireballs beads).</div>
+  </div>
+</div>
+
+<!-- Bonuses -->
+<div class="section">
+  <div class="section-title">Bonuses</div>
+  <div class="field-row">
+    <div class="field-group">
+      <label for="plus-bonus">+X Bonus (weapon, AC, save, spell)</label>
+      <select id="plus-bonus">
+        <option value="0">None</option>
+        <option value="1">+1</option>
+        <option value="2">+2</option>
+        <option value="3">+3</option>
+      </select>
+    </div>
+  </div>
+  <div class="field-row">
+    <div class="field-group">
+      <label>Ability Score Effect</label>
+      <div class="radio-group">
+        <label><input type="radio" name="ability" value="none" checked> None</label>
+        <label><input type="radio" name="ability" value="set"> Sets a score to X</label>
+        <label><input type="radio" name="ability" value="plus2"> +2 to a score</label>
+      </div>
+    </div>
+  </div>
+  <div id="set-score-fields" class="sub-field" style="display:none">
+    <label for="score-mod">Ability modifier the score grants</label>
+    <select id="score-mod">
+      <option value="4">+4 (score 19)</option>
+      <option value="5">+5 (score 21)</option>
+      <option value="6">+6 (score 23)</option>
+      <option value="7" selected>+7 (score 25)</option>
+      <option value="8">+8 (score 27)</option>
+      <option value="9">+9 (score 29)</option>
+    </select>
+  </div>
+</div>
+
+<!-- Damage -->
+<div class="section">
+  <div class="section-title">Bonus Damage</div>
+  <div class="hint" style="margin-bottom:0.5rem">Extra damage the item deals beyond its spell effect, if any. Don&rsquo;t double-count damage already covered by the spell level above.</div>
+  <div class="radio-group" style="margin-bottom:0.5rem">
+    <label><input type="radio" name="dmg-mode" value="headline" checked> Total bonus damage</label>
+    <label><input type="radio" name="dmg-mode" value="dpr"> Estimated DPR</label>
+  </div>
+  <div id="dmg-headline-group">
+    <div class="field-row">
+      <div class="field-group">
+        <label for="headline-dmg">Total bonus damage (avg)</label>
+        <input type="number" id="headline-dmg" value="0" min="0" max="100" step="0.5">
+        <div class="hint">Average damage when all effects trigger. E.g. Flame Tongue 2d6 = 7. Better predicts official rarity.</div>
+      </div>
+    </div>
+  </div>
+  <div id="dmg-dpr-group" style="display:none">
+    <div class="hint" style="margin-bottom:0.5rem">Add each damage source and pick how it triggers. Assumes 2 attacks/round, 65% hit rate, ~24 combat rounds/day.</div>
+    <div id="dpr-sources"></div>
+    <button type="button" id="add-dpr-source" style="background:none;border:1px solid var(--border);color:var(--gold-dim);cursor:pointer;padding:0.25rem 0.75rem;border-radius:4px;font-size:0.8rem;margin-top:0.25rem">+ Add damage source</button>
+    <div style="margin-top:0.5rem;font-size:0.9rem">
+      <span class="result-label">Total DPR:</span>
+      <span id="dpr-total" style="color:var(--gold);font-weight:600">0</span>
+    </div>
+    <input type="hidden" id="dpr-dmg" value="0">
+  </div>
+</div>
+
+<!-- Passive Features -->
+<div class="section">
+  <div class="section-title">Passive Features</div>
+  <div class="hint" style="margin-bottom:0.75rem">Always-on effects &mdash; no charges, no actions, no resources consumed.</div>
+
+  <div class="check-row">
+    <label title="Passively grants resistance to one or more damage types while worn/carried. E.g. Armor of Resistance, Dragon Scale Mail, Frost Brand."><input type="checkbox" id="p-resist"> Damage Resistance</label>
+    <span class="type-count"><input type="number" id="resist-count" value="1" min="1" max="13" disabled> <span id="resist-pl">type</span></span>
+  </div>
+  <div class="check-row">
+    <label title="Passively grants immunity to a damage type. E.g. Efreeti Chain (fire), Periapt of Proof against Poison."><input type="checkbox" id="p-immune"> Damage Immunity</label>
+    <span class="type-count"><input type="number" id="immune-count" value="1" min="1" max="13" disabled> <span id="immune-pl">type</span></span>
+  </div>
+  <div class="check-row"><label title="Grants advantage on certain saving throws, or a passive save bonus beyond the +X field. E.g. Mantle of Spell Resistance, Cloak of Protection (save bonus), Scarab of Protection."><input type="checkbox" id="p-save"> Saving Throw Advantage</label></div>
+  <div class="check-row"><label title="Passively reduces incoming damage, regenerates HP, or preserves HP without charges or activation. E.g. Cloak of Displacement, Ring of Regeneration, Arrow-Catching Shield."><input type="checkbox" id="p-hp"> HP Preservation</label></div>
+  <div class="hint" style="margin: -0.2rem 0 0.4rem 1.5rem">Passively reduces damage taken, regenerates HP, or similar. E.g. Cloak of Displacement, Ring of Regeneration.</div>
+  <div class="check-row"><label title="The item fights or acts independently without occupying your hands or action. E.g. Ioun Stones, Dancing Sword, Animated Shield, Scimitar of Speed."><input type="checkbox" id="p-slot"> Extra Equipment Slot</label></div>
+  <div class="hint" style="margin: -0.2rem 0 0.4rem 1.5rem">Acts independently without using your hands or action. E.g. Ioun Stones, Dancing Sword, Animated Shield.</div>
+  <div class="check-row"><label title="Grants enhanced vision (darkvision, truesight, see invisible) or sheds magical light as a passive property. E.g. Goggles of Night, Robe of Eyes, Flame Tongue, Sun Blade."><input type="checkbox" id="p-vision"> Special Vision / Light</label></div>
+  <div class="check-row"><label title="Passive convenience or utility (environmental immunity, stealth, niche protection). Negative coefficient: designers price utility lower than combat power. E.g. Cloak of Elvenkind, Boots of the Winterlands, Ring of Mind Shielding."><input type="checkbox" id="p-utility"> Utility Presence <span style="color:var(--text-dim);font-size:0.8rem">(lowers score)</span></label></div>
+  <div class="hint" style="margin: -0.2rem 0 0.4rem 1.5rem">Passive convenience or niche utility &mdash; stealth, environmental immunity, etc. Designers price these lower than combat power. E.g. Cloak of Elvenkind, Boots of the Winterlands.</div>
+</div>
+
+<!-- Extra Features -->
+<div class="section">
+  <div class="section-title">Extra Features</div>
+  <div class="check-row">
+    <label><input type="checkbox" id="has-extras"> Has notable extras (conditions, misc features)</label>
+  </div>
+  <div class="hint">If the item does X <em>and also</em> Y, the &ldquo;also Y&rdquo; probably qualifies.</div>
+</div>
+
+<!-- Reference -->
+<div class="ref-section">
+  <button class="ref-toggle" id="ref-toggle">Reference Tables &amp; Notes</button>
+  <div class="ref-content" id="ref-content">
+
+    <h3>Spell Level Contribution</h3>
+    <table>
+      <tr><th>Level</th><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td></tr>
+      <tr><th>Contrib</th><td>+0.00</td><td>+0.38</td><td>+0.74</td><td>+1.07</td><td>+1.37</td><td>+1.65</td><td>+1.89</td><td>+2.11</td><td>+2.30</td><td>+2.46</td></tr>
+    </table>
+
+    <h3>Price by Rarity Score</h3>
+    <p>Prices are interpolated log-linearly between the Xanathar's base prices (100, 400, 4,000, 40,000, 200,000 gp at integer rarity scores 0&ndash;4). A score of 2.35 is 35% of the way from Rare to Very Rare on a log scale: 4,000 &times; (40,000/4,000)<sup>0.35</sup> &approx; 8,955 gp.</p>
+    <table>
+      <tr><th>Score</th><td>0.0</td><td>0.5</td><td>1.0</td><td>1.5</td><td>2.0</td><td>2.5</td><td>3.0</td><td>3.5</td><td>4.0</td></tr>
+      <tr><th>Full</th><td>100</td><td>200</td><td>400</td><td>1,260</td><td>4,000</td><td>12,600</td><td>40,000</td><td>89,400</td><td>200,000</td></tr>
+      <tr><th>Cons.</th><td>17</td><td>33</td><td>67</td><td>210</td><td>667</td><td>2,100</td><td>6,667</td><td>14,900</td><td>33,333</td></tr>
+    </table>
+
+    <h3>Consumable Pricing</h3>
+    <p>Consumable items are priced at 1/6 of the full price. This is much steeper than Xanathar's suggested 1/2 discount, but fits the actual published potion crafting costs far better.</p>
+
+    <h3>Spell Scrolls</h3>
+    <p>Spell scroll prices follow their own progression that doesn't map cleanly onto the general curve (reflecting the value of learning spells). Use the published table directly.</p>
+
+    <h3>Set Score Net Contribution</h3>
+    <table>
+      <tr><th>Score</th><td>19</td><td>21</td><td>23</td><td>25</td><td>27</td><td>29</td></tr>
+      <tr><th>Mod</th><td>+4</td><td>+5</td><td>+6</td><td>+7</td><td>+8</td><td>+9</td></tr>
+      <tr><th>Net</th><td>+0.54</td><td>+1.12</td><td>+1.70</td><td>+2.28</td><td>+2.86</td><td>+3.44</td></tr>
+    </table>
+
+    <h3>Spell Level Adjustments</h3>
+    <table>
+      <tr><th>Modification</th><th>Adjust</th></tr>
+      <tr><td>Remove concentration</td><td>+0.5 levels</td></tr>
+      <tr><td>Weaker / partial</td><td>&minus;0.5 per step</td></tr>
+      <tr><td>Stronger</td><td>+1.0 per step</td></tr>
+      <tr><td>Bonus action cast</td><td>~+1.0 level</td></tr>
+    </table>
+
+    <h3>Total Bonus Damage vs DPR</h3>
+    <p>Total bonus damage (+0.032/avg) is the face-value average of all bonus damage dice. DPR (+0.033/round) adjusts for trigger frequency. Total bonus damage fits official rarities slightly better (R&sup2;=0.573 vs 0.562); DPR better reflects actual combat power. They mostly agree but diverge for items like Ring of the Ram (total 33, DPR 1.8).</p>
+
+    <h3>Estimating DPR</h3>
+    <p>Assumes a typical martial character making 2 attacks/round with ~65% hit rate.</p>
+    <table>
+      <tr><th>Trigger Type</th><th>Multiplier</th><th>Example</th></tr>
+      <tr><td>Always-on, every hit</td><td>avg &times; 1.3</td><td>Flame Tongue 7 &rarr; 9.1</td></tr>
+      <tr><td>Nat 20 only</td><td>avg &times; 0.1</td><td>Vicious Weapon 7 &rarr; 0.7</td></tr>
+      <tr><td>Vs specific creature type</td><td>always-on &times; 0.3</td><td>Dragon Slayer 10 &rarr; 3.9</td></tr>
+      <tr><td>1/day ability</td><td>avg / 24</td><td>Dagger of Venom 11 &rarr; ~0.5</td></tr>
+      <tr><td>Charge-based, per hit</td><td>uses/day &times; avg / 24</td><td>Staff of Striking ~6/day &times; 10 / 24 &rarr; 2.5</td></tr>
+      <tr><td>Charge-based, uses action</td><td>uses/day &times; avg / 24</td><td>Ring of the Ram ~2/day &times; 33 / 24 &rarr; 1.8</td></tr>
+      <tr><td>Consumable (one-time)</td><td>avg / 4</td><td>Arrow of Slaying 33 &rarr; 8.2</td></tr>
+    </table>
+    <p>If an item has multiple damage sources, add their DPR estimates together. The 24 rounds/day figure assumes ~6 encounters of ~4 rounds each.</p>
+
+    <h3>Attunement Prediction</h3>
+    <p>The "likely requires attunement" indicator uses the triggers identified by <a href="https://www.enworld.org/threads/reverse-engineering-the-real-rules-of-attunement.682660/" style="color:var(--gold-dim)">Sword of Spirit on ENWorld</a>: +X bonuses, ability score effects, damage resistance/immunity, saving throw advantages, HP preservation, special vision, extra equipment slots, and permanent bonus damage all tend to require attunement. Consumable items almost never do.</p>
+
+    <h3>Formula Coefficients</h3>
+    <table>
+      <tr><th>Factor</th><th>Value</th></tr>
+      <tr><td>Base score</td><td>0.51</td></tr>
+      <tr><td>Spell level</td><td>+0.396/lvl &minus; 0.013/lvl&sup2;</td></tr>
+      <tr><td>No spell usage</td><td>+0.52</td></tr>
+      <tr><td>Charges/day</td><td>&minus;0.16 + 0.046/charge</td></tr>
+      <tr><td>Consumable charges</td><td>+0.011/charge</td></tr>
+      <tr><td>+X bonus</td><td>+0.53/plus</td></tr>
+      <tr><td>Sets score</td><td>&minus;1.78 + 0.58/mod</td></tr>
+      <tr><td>+2 to score</td><td>+0.65</td></tr>
+      <tr><td>Secondary spell</td><td>+0.131/lvl</td></tr>
+      <tr><td>Total bonus damage</td><td>+0.032/avg dmg</td></tr>
+      <tr><td>DPR</td><td>+0.033/DPR</td></tr>
+      <tr><td>Extra features</td><td>+0.40</td></tr>
+      <tr><td>Resistance</td><td>+0.37/type</td></tr>
+      <tr><td>Immunity</td><td>+0.44/type</td></tr>
+      <tr><td>Save advantage</td><td>+0.29</td></tr>
+      <tr><td>HP preservation</td><td>+0.33</td></tr>
+      <tr><td>Extra equip slot</td><td>+1.19</td></tr>
+      <tr><td>Vision / light</td><td>+0.52</td></tr>
+      <tr><td>Utility presence</td><td>&minus;0.63</td></tr>
+    </table>
+  </div>
+</div>
+
+<footer>
+  Formula from <a href="https://github.com/MugaSofer/item-costs">Rarity Score Guide</a>.
+  Price anchors from Xanathar's Guide to Everything.
+  Dataset by <a href="https://www.reddit.com/r/dndnext/comments/1j8t5fi/">varansl / Dump Stat</a>.
+</footer>
+
+</div>
+
+<script>
+// ============================================================
+// Formula
+// ============================================================
+const COEF = {
+  base: 0.51,
+  spellLevel: 0.3949,
+  spellLevelSq: -0.0133,
+  noSpellUsage: 0.52,
+  chargesDay: -0.16,
+  perChargeDay: 0.046,
+  perChargeItem: 0.011,
+  plusBonus: 0.525,
+  setsScoreBase: -1.78,
+  setsScorePer: 0.584,
+  bonusScore: 0.65,
+  secondarySpell: 0.131,
+  headlineDmg: 0.032,
+  dprDmg: 0.033,
+  extras: 0.40,
+  resistance: 0.37,
+  immunity: 0.44,
+  saveAdv: 0.29,
+  hpPres: 0.33,
+  extraSlot: 1.19,
+  vision: 0.52,
+  utility: -0.63,
+};
+
+// Piecewise log-linear price interpolation
+const TIER_PRICES = [100, 400, 4000, 40000, 200000];
+const TIER_LOG = TIER_PRICES.map(Math.log);
+
+function priceFromScore(score) {
+  score = Math.min(4, score);
+  const idx = Math.min(3, Math.max(0, Math.floor(score)));
+  const frac = score - idx;
+  return Math.exp(TIER_LOG[idx] + frac * (TIER_LOG[idx + 1] - TIER_LOG[idx]));
+}
+
+function formatGold(gp, prefix) {
+  if (prefix === undefined) prefix = '~';
+  if (gp < 1) return '<1 gp';
+  if (gp >= 1000000) return prefix + (gp / 1000000).toFixed(1) + 'M gp';
+  if (gp >= 10000) return prefix + (Math.round(gp / 100) * 100).toLocaleString() + ' gp';
+  if (gp >= 1000) return prefix + (Math.round(gp / 10) * 10).toLocaleString() + ' gp';
+  if (gp >= 100) return prefix + Math.round(gp).toLocaleString() + ' gp';
+  return prefix + Math.round(gp) + ' gp';
+}
+
+const RARITY_NAMES = ['Common', 'Uncommon', 'Rare', 'Very Rare', 'Legendary'];
+
+function rarityFromScore(score) {
+  const idx = Math.min(4, Math.max(0, Math.round(score)));
+  return RARITY_NAMES[idx];
+}
+
+// ============================================================
+// Attunement prediction
+// ============================================================
+function predictAttunement() {
+  const usage = $r('usage').value;
+  // Consumables almost never require attunement
+  if (usage === 'consumable') return { likely: false, reason: 'consumable' };
+
+  const triggers = [];
+  if (getVal('plus-bonus') > 0) triggers.push('+X bonus');
+  if ($r('ability').value === 'set') triggers.push('sets ability score');
+  if ($r('ability').value === 'plus2') triggers.push('+2 ability score');
+  if ($('p-resist').checked) triggers.push('damage resistance');
+  if ($('p-immune').checked) triggers.push('damage immunity');
+  if ($('p-save').checked) triggers.push('save advantage');
+  if ($('p-hp').checked) triggers.push('HP preservation');
+  if ($('p-vision').checked) triggers.push('special vision');
+  if ($('p-slot').checked) triggers.push('extra equipment slot');
+
+  // Bonus damage on a weapon (permanent enchantment) often triggers attunement
+  const dmgMode = $r('dmg-mode').value;
+  const dmg = dmgMode === 'headline' ? getVal('headline-dmg') : getVal('dpr-dmg');
+  if (dmg > 0 && usage === 'none') triggers.push('bonus damage');
+
+  // Items that grant spellcasting almost always require attunement
+  const hasSpell = getVal('spell-level') >= 0;
+  if (hasSpell) triggers.push('spellcasting');
+
+  if (triggers.length > 0) {
+    return { likely: true, reason: triggers.join(', ') };
+  }
+  return { likely: false, reason: 'no attunement triggers' };
+}
+
+// ============================================================
+// DOM refs
+// ============================================================
+const $ = id => document.getElementById(id);
+const $r = name => document.querySelector(`input[name="${name}"]:checked`);
+
+function getVal(id) { return parseFloat($(id).value) || 0; }
+
+// ============================================================
+// Calculate & render
+// ============================================================
+function calculate() {
+  const breakdown = [];
+  let score = COEF.base;
+  breakdown.push({ label: 'Base score', value: COEF.base });
+
+  // Spell level
+  const spellSelect = getVal('spell-level');
+  const hasSpell = spellSelect >= 0;
+  let totalAdjust = 0;
+  if (hasSpell) {
+    // Sum checkbox adjustments
+    if ($('adj-no-conc').checked) totalAdjust += 0.5;
+    if ($('adj-weaker').checked) totalAdjust -= 0.5;
+    if ($('adj-stronger').checked) totalAdjust += 1;
+    if ($('adj-bonus-action').checked) totalAdjust += 1;
+    totalAdjust += getVal('spell-adjust-manual');
+
+    const sl = spellSelect + totalAdjust;
+    const contrib = COEF.spellLevel * sl + COEF.spellLevelSq * sl * sl;
+    score += contrib;
+    const label = totalAdjust !== 0
+      ? `Spell level ${spellSelect} (adj ${totalAdjust >= 0 ? '+' : ''}${totalAdjust} \u2192 ${sl})`
+      : `Spell level ${sl}`;
+    breakdown.push({ label, value: contrib });
+  }
+
+  // Usage type
+  const usage = $r('usage').value;
+  const isConsumable = usage === 'consumable';
+  if (usage === 'none') {
+    score += COEF.noSpellUsage;
+    breakdown.push({ label: 'No spell usage', value: COEF.noSpellUsage });
+  } else if (usage === 'charges') {
+    score += COEF.chargesDay;
+    breakdown.push({ label: 'Charges/day', value: COEF.chargesDay });
+    const nCharges = getVal('charges-day');
+    if (nCharges > 0) {
+      const c = COEF.perChargeDay * nCharges;
+      score += c;
+      breakdown.push({ label: `${nCharges} charges \u00D7 ${COEF.perChargeDay}`, value: c });
+    }
+  } else if (isConsumable) {
+    const totalUses = Math.max(1, getVal('total-uses'));
+    const extraCharges = totalUses - 1;
+    if (extraCharges > 0) {
+      const c = COEF.perChargeItem * extraCharges;
+      score += c;
+      breakdown.push({ label: `${extraCharges} extra uses \u00D7 ${COEF.perChargeItem}`, value: c });
+    }
+  }
+  // unlimited: no modifier
+
+  // +X bonus
+  const plus = getVal('plus-bonus');
+  if (plus > 0) {
+    const c = COEF.plusBonus * plus;
+    score += c;
+    breakdown.push({ label: `+${plus} bonus`, value: c });
+  }
+
+  // Ability score
+  const ability = $r('ability').value;
+  if (ability === 'set') {
+    const mod = getVal('score-mod');
+    const c = COEF.setsScoreBase + COEF.setsScorePer * mod;
+    score += c;
+    breakdown.push({ label: `Sets score (mod +${mod})`, value: c });
+  } else if (ability === 'plus2') {
+    score += COEF.bonusScore;
+    breakdown.push({ label: '+2 to ability score', value: COEF.bonusScore });
+  }
+
+  // Secondary spell
+  const secSpell = getVal('secondary-spell');
+  if (secSpell > 0) {
+    const c = COEF.secondarySpell * secSpell;
+    score += c;
+    breakdown.push({ label: `Secondary spell (lvl ${secSpell})`, value: c });
+  }
+
+  // Damage
+  const dmgMode = $r('dmg-mode').value;
+  if (dmgMode === 'headline') {
+    const dmg = getVal('headline-dmg');
+    if (dmg > 0) {
+      const c = COEF.headlineDmg * dmg;
+      score += c;
+      breakdown.push({ label: `Headline damage (${dmg} avg)`, value: c });
+    }
+  } else {
+    const dmg = getVal('dpr-dmg');
+    if (dmg > 0) {
+      const c = COEF.dprDmg * dmg;
+      score += c;
+      breakdown.push({ label: `DPR (${dmg}/round)`, value: c });
+    }
+  }
+
+  // Passive features
+  if ($('p-resist').checked) {
+    const n = getVal('resist-count');
+    const c = COEF.resistance * n;
+    score += c;
+    breakdown.push({ label: `Resistance (${n} type${n > 1 ? 's' : ''})`, value: c });
+  }
+  if ($('p-immune').checked) {
+    const n = getVal('immune-count');
+    const c = COEF.immunity * n;
+    score += c;
+    breakdown.push({ label: `Immunity (${n} type${n > 1 ? 's' : ''})`, value: c });
+  }
+  if ($('p-save').checked) {
+    score += COEF.saveAdv;
+    breakdown.push({ label: 'Save advantage', value: COEF.saveAdv });
+  }
+  if ($('p-hp').checked) {
+    score += COEF.hpPres;
+    breakdown.push({ label: 'HP preservation', value: COEF.hpPres });
+  }
+  if ($('p-slot').checked) {
+    score += COEF.extraSlot;
+    breakdown.push({ label: 'Extra equipment slot', value: COEF.extraSlot });
+  }
+  if ($('p-vision').checked) {
+    score += COEF.vision;
+    breakdown.push({ label: 'Special vision / light', value: COEF.vision });
+  }
+  if ($('p-utility').checked) {
+    score += COEF.utility;
+    breakdown.push({ label: 'Utility presence', value: COEF.utility });
+  }
+
+  // Extra features
+  if ($('has-extras').checked) {
+    score += COEF.extras;
+    breakdown.push({ label: 'Extra features', value: COEF.extras });
+  }
+
+  // Results
+  const price = priceFromScore(score);
+
+  $('r-score').textContent = score.toFixed(2);
+  $('r-rarity').textContent = rarityFromScore(score);
+
+  const capped = score > 4;
+  const pfx = capped ? '>' : '~';
+  if (isConsumable) {
+    const totalUses = Math.max(1, getVal('total-uses'));
+    const displayPrice = Math.min(price, price * totalUses / 6);
+    const fraction = totalUses >= 6 ? 'full' : totalUses + '/6';
+    $('r-price').textContent = formatGold(displayPrice, pfx) + ' (' + fraction + ')';
+  } else {
+    $('r-price').textContent = formatGold(price, pfx);
+  }
+
+  // Confidence ranges
+  // Residual σ ≈ 0.76 (derived from 49% exact match and 95% within 1 tier)
+  const SIGMA = 0.76;
+  // 50% interval: ±0.6745σ ≈ ±0.51
+  // 95% interval: ±1.96σ  ≈ ±1.49
+  const lo50 = score - 0.6745 * SIGMA;
+  const hi50 = score + 0.6745 * SIGMA;
+  const lo95 = score - 1.96 * SIGMA;
+  const hi95 = score + 1.96 * SIGMA;
+
+  function priceForDisplay(s) {
+    const p = priceFromScore(s);
+    if (isConsumable) {
+      const totalUses = Math.max(1, getVal('total-uses'));
+      return Math.min(p, p * totalUses / 6);
+    }
+    return p;
+  }
+
+  function rangeText(label, lo, hi) {
+    const rarLo = rarityFromScore(lo);
+    const rarHi = rarityFromScore(hi);
+    const pLo = formatGold(priceForDisplay(lo), '');
+    const pHi = formatGold(priceForDisplay(hi), '');
+    const rar = rarLo === rarHi ? rarLo : `${rarLo} to ${rarHi}`;
+    return `<b>${label} confidence:</b> Rarity: ${rar}, Price: ${pLo} to ${pHi}`;
+  }
+
+  $('r-range').innerHTML = rangeText('50%', lo50, hi50) + '<br>' + rangeText('95%', lo95, hi95);
+
+  // Attunement prediction
+  const attune = predictAttunement();
+  const attuneEl = $('r-attune');
+  if (attune.likely) {
+    attuneEl.textContent = 'Likely requires attunement';
+    attuneEl.className = 'result-value attune yes';
+    attuneEl.title = 'Triggers: ' + attune.reason;
+  } else {
+    attuneEl.textContent = 'Probably no attunement';
+    attuneEl.className = 'result-value attune no';
+    attuneEl.title = attune.reason;
+  }
+
+  // Breakdown
+  const bdEl = $('breakdown');
+  bdEl.innerHTML = breakdown.map(b => {
+    const cls = b.value > 0.001 ? 'positive' : b.value < -0.001 ? 'negative' : 'zero';
+    const sign = b.value >= 0 ? '+' : '';
+    return `<div class="bd-line ${cls}"><span class="bd-label">${b.label}</span><span class="bd-val">${sign}${b.value.toFixed(2)}</span></div>`;
+  }).join('');
+}
+
+// ============================================================
+// DPR calculator
+// ============================================================
+const DPR_TRIGGERS = [
+  { value: 'always',   label: 'Always-on (every hit)',     mult: 1.3,  needsUses: false },
+  { value: 'nat20',    label: 'Nat 20 only',               mult: 0.1,  needsUses: false },
+  { value: 'creature', label: 'Vs specific creature type',  mult: 0.39, needsUses: false },
+  { value: 'daily1',   label: '1/day ability',              mult: 1/24, needsUses: false },
+  { value: 'limited',  label: 'Limited uses/day',           mult: null, needsUses: true  },
+  { value: 'consumable', label: 'Consumable (one-time)',    mult: 0.25, needsUses: false },
+];
+
+let dprSourceCount = 0;
+
+function addDprSource() {
+  const id = dprSourceCount++;
+  const container = $('dpr-sources');
+  const row = document.createElement('div');
+  row.className = 'dpr-row';
+  row.id = 'dpr-row-' + id;
+
+  const options = DPR_TRIGGERS.map(t =>
+    `<option value="${t.value}">${t.label}</option>`
+  ).join('');
+
+  row.innerHTML = `
+    <input type="number" id="dpr-avg-${id}" value="0" min="0" max="100" step="0.5" placeholder="Avg dmg">
+    <select id="dpr-trigger-${id}">${options}</select>
+    <span class="dpr-uses" id="dpr-uses-wrap-${id}"><input type="number" id="dpr-uses-${id}" value="3" min="1" max="50" placeholder="uses"> /day</span>
+    <span class="dpr-result" id="dpr-result-${id}">=&nbsp;0</span>
+    <button type="button" class="dpr-remove" title="Remove">&times;</button>
+  `;
+
+  container.appendChild(row);
+
+  // Wire events for this row
+  const avgInput = $('dpr-avg-' + id);
+  const triggerSelect = $('dpr-trigger-' + id);
+  const usesInput = $('dpr-uses-' + id);
+  const usesWrap = $('dpr-uses-wrap-' + id);
+  const removeBtn = row.querySelector('.dpr-remove');
+
+  function updateRow() {
+    const trigger = DPR_TRIGGERS.find(t => t.value === triggerSelect.value);
+    usesWrap.style.display = trigger.needsUses ? 'inline-flex' : 'none';
+    updateDprTotal();
+  }
+
+  avgInput.addEventListener('input', updateRow);
+  triggerSelect.addEventListener('change', updateRow);
+  usesInput.addEventListener('input', updateRow);
+  removeBtn.addEventListener('click', () => {
+    row.remove();
+    updateDprTotal();
+  });
+
+  updateRow();
+}
+
+function calcRowDpr(row) {
+  const id = row.id.replace('dpr-row-', '');
+  const avg = parseFloat($('dpr-avg-' + id).value) || 0;
+  const triggerVal = $('dpr-trigger-' + id).value;
+  const trigger = DPR_TRIGGERS.find(t => t.value === triggerVal);
+
+  if (trigger.needsUses) {
+    const uses = parseFloat($('dpr-uses-' + id).value) || 0;
+    return avg * uses / 24;
+  }
+  return avg * trigger.mult;
+}
+
+function updateDprTotal() {
+  let total = 0;
+  document.querySelectorAll('#dpr-sources .dpr-row').forEach(row => {
+    const dpr = calcRowDpr(row);
+    const id = row.id.replace('dpr-row-', '');
+    $('dpr-result-' + id).textContent = '= ' + dpr.toFixed(1);
+    total += dpr;
+  });
+  $('dpr-total').textContent = total.toFixed(1);
+  $('dpr-dmg').value = total.toFixed(1);
+  calculate();
+}
+
+// ============================================================
+// Event wiring
+// ============================================================
+function wireEvents() {
+  // Recalculate on any change
+  document.querySelectorAll('select, input').forEach(el => {
+    el.addEventListener('change', calculate);
+    el.addEventListener('input', calculate);
+  });
+
+  // Link spell level and usage
+  function setUsage(val) {
+    document.querySelector(`input[name="usage"][value="${val}"]`).checked = true;
+    $('charges-fields').style.display = val === 'charges' ? 'block' : 'none';
+    $('consumable-fields').style.display = val === 'consumable' ? 'block' : 'none';
+  }
+
+  $('spell-level').addEventListener('change', () => {
+    const hasSpell = getVal('spell-level') >= 0;
+    $('spell-adjust-section').style.display = hasSpell ? 'block' : 'none';
+    // Picking a spell level while on "No spell usage" → switch to Unlimited
+    if (hasSpell && $r('usage').value === 'none') setUsage('unlimited');
+  });
+
+  // Show/hide conditional fields + sync with spell level
+  document.querySelectorAll('input[name="usage"]').forEach(el => {
+    el.addEventListener('change', () => {
+      const v = $r('usage').value;
+      $('charges-fields').style.display = v === 'charges' ? 'block' : 'none';
+      $('consumable-fields').style.display = v === 'consumable' ? 'block' : 'none';
+      // "No spell usage" → clear spell level (can't have a spell with no spell usage)
+      if (v === 'none' && getVal('spell-level') >= 0) {
+        $('spell-level').value = '-1';
+        $('spell-adjust-section').style.display = 'none';
+      }
+    });
+  });
+
+  document.querySelectorAll('input[name="ability"]').forEach(el => {
+    el.addEventListener('change', () => {
+      $('set-score-fields').style.display = $r('ability').value === 'set' ? 'block' : 'none';
+    });
+  });
+
+  // Toggle damage mode
+  document.querySelectorAll('input[name="dmg-mode"]').forEach(el => {
+    el.addEventListener('change', () => {
+      const mode = $r('dmg-mode').value;
+      $('dmg-headline-group').style.display = mode === 'headline' ? '' : 'none';
+      $('dmg-dpr-group').style.display = mode === 'dpr' ? '' : 'none';
+    });
+  });
+
+  // DPR source management
+  $('add-dpr-source').addEventListener('click', addDprSource);
+  addDprSource(); // start with one row
+
+  // Enable/disable count fields for resist/immune
+  $('p-resist').addEventListener('change', () => {
+    $('resist-count').disabled = !$('p-resist').checked;
+  });
+  $('p-immune').addEventListener('change', () => {
+    $('immune-count').disabled = !$('p-immune').checked;
+  });
+
+  // Pluralize "type"/"types"
+  $('resist-count').addEventListener('input', () => {
+    $('resist-pl').textContent = getVal('resist-count') === 1 ? 'type' : 'types';
+  });
+  $('immune-count').addEventListener('input', () => {
+    $('immune-pl').textContent = getVal('immune-count') === 1 ? 'type' : 'types';
+  });
+
+  // Breakdown toggle
+  $('bd-toggle').addEventListener('click', () => {
+    const bd = $('breakdown');
+    const open = bd.classList.toggle('open');
+    $('bd-toggle').textContent = open ? 'Hide breakdown \u25B4' : 'Show breakdown \u25BE';
+  });
+
+  // Reference toggle
+  $('ref-toggle').addEventListener('click', () => {
+    const open = $('ref-content').classList.toggle('open');
+    $('ref-toggle').classList.toggle('open', open);
+  });
+}
+
+wireEvents();
+calculate();
+
+// Theme toggle
+function setTheme(dark) {
+  if (dark) {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    $('theme-toggle').textContent = 'Parchment mode';
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    $('theme-toggle').textContent = 'Dark mode';
+  }
+  localStorage.setItem('theme', dark ? 'dark' : 'default');
+}
+$('theme-toggle').addEventListener('click', () => {
+  setTheme(!document.documentElement.hasAttribute('data-theme'));
+});
+if (localStorage.getItem('theme') === 'dark') setTheme(true);
+</script>
+</body>
+</html>
